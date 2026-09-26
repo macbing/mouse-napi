@@ -1,0 +1,44 @@
+{
+  "name": "mouse-napi",
+  "version": "1.0.0",
+  "description": "Mouse tracking for macOS and Windows",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard",
+    "test": "node test/smoke.js && node test/parallel-destroy && node test/parallel-unref && node test/sequence-destroy && node test/sequence-unref"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/macbing/mouse-napi"
+  },
+  "keywords": [
+    "track",
+    "mouse",
+    "events",
+    "macos",
+    "windows",
+    "native",
+    "screen",
+    "display",
+    "position"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/macbing/mouse-napi/issues"
+  },
+  "homepage": "https://github.com/macbing/mouse-napi",
+  "engines": {
+    "node": ">=14"
+  },
+  "os": [
+    "darwin",
+    "win32"
+  ],
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "node-addon-api": "^7.1.1"
+  },
+  "devDependencies": {
+    "standard": "^14.3.4"
+  }
+}
