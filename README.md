@@ -1,16 +1,18 @@
 # mouse-napi
 
-macOS 与 Windows 的鼠标事件监听。可以拿到各类鼠标事件的屏幕坐标，前台是其他应用时也会继续收到事件。事件只监听，不会被吞掉。
+[中文](README.zh-CN.md)
 
-原生插件使用 [Node-API](https://nodejs.org/api/n-api.html)（`node-addon-api`），需要 **Node.js 14** 或更高版本。`npm install` 会按当前系统和 Node 版本编译。
+Mouse tracking for macOS and Windows. Receive the screen position of mouse events, including while another application is in the foreground. Events are observed only and are not consumed.
+
+The native addon uses [Node-API](https://nodejs.org/api/n-api.html) (`node-addon-api`) and requires **Node.js 14** or later. `npm install` compiles it for the system and Node.js version you are running.
 
 	npm install mouse-napi
 
-macOS 需要 **10.15** 或更高版本，以及 Xcode 命令行工具。Windows 需要能编译 Node 原生插件的构建环境（Visual Studio 的 C++ 桌面开发工具）。
+macOS requires **10.15** or later and the Xcode command line tools. Windows requires a C++ build environment that can compile Node.js native addons (the Visual Studio Desktop development with C++ workload).
 
-# 用法
+# Usage
 
-模块返回一个事件发射器。
+The module returns an event emitter.
 
 ```javascript
 var mouse = require('mouse-napi')()
@@ -20,27 +22,27 @@ mouse.on('move', function (x, y) {
 })
 ```
 
-只要监听还在，进程就不会退出。想让进程正常结束，调用 `mouse.unref()`（作用和 TCP 服务器上的 `unref` / `ref` 一样），或者调用 `mouse.destroy()`。
+The program will not terminate as long as a mouse listener is active. To allow the program to exit, either call `mouse.unref()` (works as `unref` / `ref` on a TCP server) or `mouse.destroy()`.
 
-事件有：`move`、`left-down`、`left-up`、`left-drag`、`right-down`、`right-up`、`right-drag`。每个事件都会把屏幕坐标传给处理函数。
+The events emitted are: `move`, `left-down`, `left-up`, `left-drag`, `right-down`, `right-up`, and `right-drag`. For each event the screen coordinates are passed to the handler function.
 
-# 平台差异
+# Platform notes
 
-两个系统对外的事件名相同，底层实现分开编译：
+Both systems emit the same event names. The native code is compiled separately:
 
-- **macOS** 使用 `CGEventTap`（只监听）。系统直接上报 `left-drag` 和 `right-drag`。
-- **Windows** 使用低级鼠标钩子 `WH_MOUSE_LL`。按键按住期间的移动在原生层记成 `left-drag` 或 `right-drag`。左右键同时按下时优先记成 `left-drag`。
+- **macOS** uses a listen-only `CGEventTap`. The system reports `left-drag` and `right-drag` directly.
+- **Windows** uses the `WH_MOUSE_LL` low-level mouse hook. Movement while a button is held is reported from native code as `left-drag` or `right-drag`. If both buttons are down, the event is `left-drag`.
 
-从 macOS Mojave 起，进程需要出现在 **辅助功能**（Accessibility）名单里，鼠标事件才会送达。不需要「输入监听」。
+From macOS Mojave onward, mouse events are delivered only after the process is allowed under **Accessibility**. Input Monitoring is not required.
 
-在终端里运行时：
+When running from Terminal:
 
-1. 打开 `系统设置 > 隐私与安全性 > 辅助功能`
-2. 把 *终端*（或实际启动 Node 的应用）加进列表并打开
+1. Open `System Settings > Privacy & Security > Accessibility`
+2. Add *Terminal* (or the app that launches Node) to the list and turn it on
 
-改完权限后需要重新启动进程。
+On macOS Catalina and earlier, the same list is under `System Preferences > Security & Privacy > Privacy > Accessibility`. Restart the process after changing the permission.
 
-# 来源
+# Credits
 
-- Windows 实现来自 [win-mouse](https://github.com/kapetan/win-mouse)
-- macOS 实现来自 [osx-mouse-napi](https://github.com/macbing/osx-mouse-napi)
+- Windows implementation based on [win-mouse](https://github.com/kapetan/win-mouse)
+- macOS implementation based on [osx-mouse-napi](https://github.com/macbing/osx-mouse-napi)
