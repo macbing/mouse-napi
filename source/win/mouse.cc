@@ -4,8 +4,10 @@
 
 const char* LEFT_DOWN = "left-down";
 const char* LEFT_UP = "left-up";
+const char* LEFT_DRAG = "left-drag";
 const char* RIGHT_DOWN = "right-down";
 const char* RIGHT_UP = "right-up";
+const char* RIGHT_DRAG = "right-drag";
 const char* MOVE = "move";
 
 bool IsMouseEvent(WPARAM type) {
@@ -103,10 +105,22 @@ void Mouse::Stop() {
 void Mouse::HandleEvent(WPARAM type, POINT point) {
 	if (!IsMouseEvent(type) || state == nullptr || state->stopped.load()) return;
 
+	if (type == WM_LBUTTONDOWN) state->left = true;
+	else if (type == WM_LBUTTONUP) state->left = false;
+	else if (type == WM_RBUTTONDOWN) state->right = true;
+	else if (type == WM_RBUTTONUP) state->right = false;
+
+	const char* name = EventName(type);
+	if (type == WM_MOUSEMOVE) {
+		if (state->left) name = LEFT_DRAG;
+		else if (state->right) name = RIGHT_DRAG;
+	}
+	if (name == nullptr) return;
+
 	MouseEvent* event = new MouseEvent();
 	event->x = point.x;
 	event->y = point.y;
-	event->type = type;
+	event->name = name;
 
 	State* keep = state;
 	napi_status status = tsfn.NonBlockingCall(
@@ -115,12 +129,10 @@ void Mouse::HandleEvent(WPARAM type, POINT point) {
 			std::unique_ptr<MouseEvent> owned(event);
 
 			if (env == nullptr || callback == nullptr || keep->stopped.load()) return;
-
-			const char* name = EventName(owned->type);
-			if (name == nullptr) return;
+			if (owned->name == nullptr) return;
 
 			callback.Call({
-				Napi::String::New(env, name),
+				Napi::String::New(env, owned->name),
 				Napi::Number::New(env, static_cast<double>(owned->x)),
 				Napi::Number::New(env, static_cast<double>(owned->y))
 			});

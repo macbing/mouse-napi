@@ -29,7 +29,7 @@ mouse.on('move', function (x, y) {
 两个系统对外的事件名相同，底层实现分开编译：
 
 - **macOS** 使用 `CGEventTap`（只监听）。系统直接上报 `left-drag` 和 `right-drag`。
-- **Windows** 使用低级鼠标钩子 `WH_MOUSE_LL`。钩子只上报 `move`，按键按住期间的移动会在 JavaScript 里记成 `left-drag` 或 `right-drag`。
+- **Windows** 使用低级鼠标钩子 `WH_MOUSE_LL`。按键按住期间的移动在原生层记成 `left-drag` 或 `right-drag`。左右键同时按下时优先记成 `left-drag`。
 
 从 macOS Mojave 起，进程需要出现在 **辅助功能**（Accessibility）名单里，鼠标事件才会送达。不需要「输入监听」。
 

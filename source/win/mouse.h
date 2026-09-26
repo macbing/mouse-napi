@@ -9,7 +9,7 @@
 struct MouseEvent {
 	LONG x;
 	LONG y;
-	WPARAM type;
+	const char* name;
 };
 
 const unsigned int MAX_QUEUE_SIZE = 10;
@@ -29,7 +29,9 @@ class Mouse : public Napi::ObjectWrap<Mouse> {
 		// thread-safe function finalizer deletes it once those callbacks finish.
 		struct State {
 			std::atomic<bool> stopped;
-			State() : stopped(false) {}
+			bool left;
+			bool right;
+			State() : stopped(false), left(false), right(false) {}
 		};
 
 		static Napi::FunctionReference constructor;
